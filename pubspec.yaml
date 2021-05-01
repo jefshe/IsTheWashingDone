@@ -1,5 +1,5 @@
 name: is_the_washing_done
-description: A new Flutter application.
+description: Check the energy of your tplink smart plug and determine if the washing is done
 
 # The following line prevents the package from being accidentally published to
 # pub.dev using `pub publish`. This is preferred for private packages.
@@ -20,6 +20,9 @@ version: 1.0.0+1
 environment:
   sdk: ">=2.7.0 <3.0.0"
 
+analyzer:
+  enable-experiment:
+    - non-nullable
 dependencies:
   flutter:
     sdk: flutter

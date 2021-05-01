@@ -20,3 +20,10 @@ class Device {
     return device;
   }
 }
+
+class EnergyUsage {
+  int currentmA;
+  int voltagemV;
+  int powermW;
+  int totalWh;
+}
