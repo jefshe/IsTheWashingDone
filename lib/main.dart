@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:percent_indicator/percent_indicator.dart';
 import 'tplink/api.dart';
 import 'tplink/model.dart';
 
+const double MAX_POWER_WATTS = 2400; // 240V x 10A
 void main() {
   runApp(App());
 }
@@ -28,6 +30,7 @@ class PlugSelector extends StatefulWidget {
 class _PlugSelectorState extends State<PlugSelector> {
   List<Device> _devices = [];
   Device _selectedDevice;
+  List<EnergyUsage> _usage = [];
 
   @override
   initState() {
@@ -37,13 +40,17 @@ class _PlugSelectorState extends State<PlugSelector> {
 
   void _updateDevices() async {
     var devices = await findDevices(new Duration(seconds:2));
-    print("found ${devices.length} devices");
-    var stream = getUsageRealtime(devices[0]);
-    print("subscribing...");
-    var result = await stream.first;
-    print("got result ${result}");
+    List<EnergyUsage> usage = [];
+    for (var d in devices) {
+      var subscribed = getUsageRealtime(devices[0]);
+      usage.add(await subscribed.first);
+      // todo subscribe for power changes and close view when we don't need it
+      // subscribed.
+    }
+
     setState(() {
       _devices = devices;
+      _usage = usage;
     });
   }
 
@@ -61,6 +68,13 @@ class _PlugSelectorState extends State<PlugSelector> {
           return ListTile(
             title: Text('${_devices[index].name}'),
             subtitle: Text('${_devices[index].address}'),
+            leading: CircularPercentIndicator(
+              radius: 45.0,
+              lineWidth: 5.0,
+              percent: _usage[index].powerW/MAX_POWER_WATTS,
+              center: Text('${(_usage[index].powerW/1000).round()}%'),
+              progressColor: Colors.blue,
+            ),
             trailing: _selectedDevice == _devices[index] ? Icon(Icons.check, color: Colors.green) : null,
             onTap: () {
               setState(() {
