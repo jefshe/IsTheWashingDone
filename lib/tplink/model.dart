@@ -26,14 +26,14 @@ class EnergyUsage {
   double currentA = 0;
   double voltageV = 0;
   double powerW = 0;
-  double totalWh = 0;
+  int totalWh = 0;
 
   static EnergyUsage fromJson(String jsonStr) {
     var json = jsonDecode(jsonStr)['emeter']['get_realtime'];
     var usage = new EnergyUsage();
-    usage.currentA = json['current_ma'] / 1000;
-    usage.voltageV = json['voltage_mv'] / 1000;
-    usage.powerW = json['power_mw'] / 1000;
+    usage.currentA = json['current_ma'] / 1000.0;
+    usage.voltageV = json['voltage_mv'] / 1000.0;
+    usage.powerW = json['power_mw'] / 1000.0;
     usage.totalWh = json['total_wh'];
     return usage;
   }

@@ -31,13 +31,6 @@ Future<List<Device>> findDevices(Duration timeout) async {
   return devices;
 }
 
-Stream<EnergyUsage> getUsageRealtime(Device d) async* {
-  while(true) {
-    yield await readEnergyUsage(d);
-    await Future.delayed(Duration(seconds: 5));
-  }
-}
-
 Future<EnergyUsage> readEnergyUsage(Device d) async {
   var conn = await Socket.connect(d.address.address, DEVICE_PORT);
   conn.add(energyUsageCmd);
@@ -47,15 +40,13 @@ Future<EnergyUsage> readEnergyUsage(Device d) async {
   var packet = await conn.first;
   var expected_length = ByteData.sublistView(packet).getUint32(0, Endian.big);
   buf.add(packet.sublist(4));
-  var read_length = packet.lengthInBytes - 4;
-  print("expected ${expected_length}");
-  print("read ${read_length}");
-  while (read_length < expected_length) {
+  var readLength = packet.lengthInBytes - 4;
+  while (readLength < expected_length) {
     packet = await conn.first;
     buf.add(packet);
   }
+  await conn.close();
   var decrypted = decrypt(buf.toBytes().toList());
-  print("decrypted ${decrypted}");
   return EnergyUsage.fromJson(decrypted);
 }
 
